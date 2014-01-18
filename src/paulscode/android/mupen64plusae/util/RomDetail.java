@@ -19,14 +19,9 @@
  */
 package paulscode.android.mupen64plusae.util;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Locale;
@@ -117,62 +112,6 @@ public class RomDetail
                 }
             }
         }
-    }
-    
-    public static boolean downloadArt( String artUrl, String destination )
-    {
-        if( TextUtils.isEmpty( artUrl ) )
-            return false;
-        
-        URL url = null;
-        DataInputStream input = null;
-        FileOutputStream fos = null;
-        DataOutputStream output = null;
-        try
-        {
-            url = new URL( artUrl );
-            input = new DataInputStream( url.openStream() );
-            fos = new FileOutputStream( destination );
-            output = new DataOutputStream( fos );
-            
-            int contentLength = url.openConnection().getContentLength();
-            byte[] buffer = new byte[contentLength];
-            input.readFully( buffer );
-            output.write( buffer );
-            output.flush();
-        }
-        catch( Exception ignored )
-        {
-            return false;
-        }
-        finally
-        {
-            if( output != null )
-                try
-                {
-                    output.close();
-                }
-                catch( IOException ignored )
-                {
-                }
-            if( fos != null )
-                try
-                {
-                    fos.close();
-                }
-                catch( IOException ignored )
-                {
-                }
-            if( input != null )
-                try
-                {
-                    input.close();
-                }
-                catch( IOException ignored )
-                {
-                }
-        }
-        return true;
     }
     
     private static String convertHashToString( byte[] md5Bytes )

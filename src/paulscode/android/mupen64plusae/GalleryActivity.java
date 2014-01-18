@@ -24,7 +24,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import paulscode.android.mupen64plusae.input.DiagnosticActivity;
 import paulscode.android.mupen64plusae.persistent.AppData;
@@ -38,6 +37,8 @@ import paulscode.android.mupen64plusae.util.DeviceUtil;
 import paulscode.android.mupen64plusae.util.Notifier;
 import paulscode.android.mupen64plusae.util.Prompt;
 import paulscode.android.mupen64plusae.util.Prompt.PromptFileListener;
+import paulscode.android.mupen64plusae.util.RomCache;
+import paulscode.android.mupen64plusae.util.RomCache.OnFinishedListener;
 import paulscode.android.mupen64plusae.util.RomDetail;
 import paulscode.android.mupen64plusae.util.Utility;
 import android.app.Activity;
@@ -116,7 +117,7 @@ public class GalleryActivity extends Activity implements OnItemClickListener
         // Lay out the content
         setContentView( R.layout.gallery_activity );
         mGridView = (GridView) findViewById( R.id.gridview );
-        refreshGrid( new ConfigFile( mUserPrefs.coreUserCacheDir + "/romcache.ini" ) );
+        refreshGrid( new ConfigFile( mUserPrefs.romInfoCache_ini ) );
         
         // Popup a warning if the installation appears to be corrupt
         if( !mAppData.isValidInstallation )
@@ -253,86 +254,22 @@ public class GalleryActivity extends Activity implements OnItemClickListener
     {
         // Asynchronously search for ROMs
         Notifier.showToast( this, "Searching for ROMs in " + startDir.getName() );
-        
-        new AsyncTask<File, Void, List<File>>()
-        {
-            @Override
-            protected List<File> doInBackground( File... params )
-            {
-                return getRomFiles( params[0] );
-            }
-            
-            private List<File> getRomFiles( File rootPath )
-            {
-                List<File> allfiles = new ArrayList<File>();
-                if( rootPath != null && rootPath.exists() )
+        RomCache.refreshRoms( startDir, mUserPrefs.romInfoCache_ini, mUserPrefs.coreUserCacheDir,
+                new OnFinishedListener()
                 {
-                    if( rootPath.isDirectory() )
+                    @Override
+                    public void onProgress( String name )
                     {
-                        for( File file : rootPath.listFiles() )
-                            allfiles.addAll( getRomFiles( file ) );
+                        Notifier.showToast( GalleryActivity.this, name );
                     }
-                    else
-                    {
-                        String name = rootPath.getName().toLowerCase( Locale.US );
-                        if( name.matches( ".*\\.(n64|v64|z64|zip)$" ) )
-                            allfiles.add( rootPath );
-                    }
-                }
-                return allfiles;
-            }
-            
-            @Override
-            protected void onPostExecute( List<File> files )
-            {
-                super.onPostExecute( files );
-                cacheRomInfo( files );
-            }
-        }.execute( startDir );
-    }
-    
-    private void cacheRomInfo( List<File> files )
-    {
-        new AsyncTask<File, String, ConfigFile>()
-        {
-            @Override
-            protected ConfigFile doInBackground( File... files )
-            {
-                String configPath = mUserPrefs.coreUserCacheDir + "/romcache.ini";
-                new File( configPath ).mkdirs();
-                final ConfigFile config = new ConfigFile( configPath );
-                config.clear();
-                for( final File file : files )
-                {
-                    String md5 = RomDetail.computeMd5( file );
-                    RomDetail detail = RomDetail.lookupByMd5( md5 );
-                    String artPath = mUserPrefs.coreUserCacheDir + "/" + detail.artName;
-                    RomDetail.downloadArt( detail.artUrl, artPath );
                     
-                    this.publishProgress( detail.goodName );
-                    config.put( detail.goodName, "md5", detail.md5 );
-                    config.put( detail.goodName, "romPath", file.getAbsolutePath() );
-                    config.put( detail.goodName, "artPath", artPath );
-                }
-                config.save();
-                return config;
-            }
-            
-            @Override
-            protected void onProgressUpdate( String... values )
-            {
-                super.onProgressUpdate( values );
-                Notifier.showToast( GalleryActivity.this, values[0] );
-            }
-            
-            @Override
-            protected void onPostExecute( ConfigFile result )
-            {
-                super.onPostExecute( result );
-                Notifier.showToast( GalleryActivity.this, "Finished" );
-                refreshGrid( result );
-            }
-        }.execute( files.toArray( new File[files.size()] ) );
+                    @Override
+                    public void onFinished( ConfigFile config )
+                    {
+                        Notifier.showToast( GalleryActivity.this, "Finished" );
+                        refreshGrid( config );
+                    }
+                } );
     }
     
     private void refreshGrid( ConfigFile config )
