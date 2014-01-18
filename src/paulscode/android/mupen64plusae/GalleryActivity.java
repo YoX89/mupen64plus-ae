@@ -299,6 +299,7 @@ public class GalleryActivity extends Activity implements OnItemClickListener
             protected ConfigFile doInBackground( File... files )
             {
                 String configPath = mUserPrefs.coreUserCacheDir + "/romcache.ini";
+                new File( configPath ).mkdirs();
                 final ConfigFile config = new ConfigFile( configPath );
                 config.clear();
                 for( final File file : files )
