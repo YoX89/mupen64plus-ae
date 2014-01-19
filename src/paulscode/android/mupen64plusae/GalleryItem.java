@@ -54,12 +54,17 @@ public class GalleryItem implements Comparable<GalleryItem>
     @Override
     public int compareTo( GalleryItem another )
     {
-        if( this.detail == null || this.detail.goodName == null )
-            return 1;
-        else if( another.detail == null || another.detail.goodName == null )
-            return -1;
-        else
-            return this.detail.goodName.compareToIgnoreCase( another.detail.goodName );
+        return getComparisonName().compareToIgnoreCase( another.getComparisonName() );
+    }
+    
+    private String getComparisonName()
+    {
+        StringBuilder builder = new StringBuilder( "" );
+        if( detail != null && !TextUtils.isEmpty( detail.goodName ) )
+            builder.append( detail.goodName );
+        if( romFile != null && !TextUtils.isEmpty( romFile.getName() ) )
+            builder.append( romFile.getName() );
+        return builder.toString();
     }
     
     public static class Adapter extends ArrayAdapter<GalleryItem>
