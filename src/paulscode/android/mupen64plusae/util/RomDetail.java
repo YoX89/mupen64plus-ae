@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
-import java.util.HashMap;
 import java.util.Locale;
 
 import paulscode.android.mupen64plusae.persistent.ConfigFile;
@@ -46,29 +45,10 @@ public class RomDetail
     private static final String URL_TEMPLATE = "http://paulscode.com/downloads/Mupen64Plus-AE/CoverArt/%s";
     
     private static ConfigFile sConfigFile = null;
-    private static final HashMap<String, ConfigSection> sCrcMap = new HashMap<String, ConfigSection>();
     
     public static void initializeDatabase( String mupen64plusIni )
     {
         sConfigFile = new ConfigFile( mupen64plusIni );
-        for( String key : sConfigFile.keySet() )
-        {
-            ConfigSection section = sConfigFile.get( key );
-            if( section != null )
-            {
-                String crc = section.get( "CRC" );
-                if( crc != null )
-                {
-                    if( sCrcMap.get( crc ) == null )
-                        sCrcMap.put( crc, section );
-                }
-            }
-        }
-    }
-    
-    public static RomDetail lookupByCrc( String crc )
-    {
-        return new RomDetail( sCrcMap.get( crc ), null );
     }
     
     public static RomDetail lookupByMd5( String md5 )
