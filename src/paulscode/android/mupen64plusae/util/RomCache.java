@@ -102,9 +102,9 @@ public class RomCache
                     downloadArt( detail.artUrl, artPath );
                     
                     this.publishProgress( detail.goodName );
-                    config.put( detail.goodName, "md5", detail.md5 );
-                    config.put( detail.goodName, "romPath", file.getAbsolutePath() );
-                    config.put( detail.goodName, "artPath", artPath );
+                    config.put( md5, "goodName", detail.goodName );
+                    config.put( md5, "romPath", file.getAbsolutePath() );
+                    config.put( md5, "artPath", artPath );
                 }
                 config.save();
                 return config;

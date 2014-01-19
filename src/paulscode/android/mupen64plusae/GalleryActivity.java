@@ -275,13 +275,12 @@ public class GalleryActivity extends Activity implements OnItemClickListener
     private void refreshGrid( ConfigFile config )
     {
         List<GalleryItem> items = new ArrayList<GalleryItem>();
-        for( String sectionTitle : config.keySet() )
+        for( String md5 : config.keySet() )
         {
-            if( !ConfigFile.SECTIONLESS_NAME.equals( sectionTitle ) )
+            if( !ConfigFile.SECTIONLESS_NAME.equals( md5 ) )
             {
-                String md5 = config.get( sectionTitle, "md5" );
-                String romPath = config.get( sectionTitle, "romPath" );
-                String artPath = config.get( sectionTitle, "artPath" );
+                String romPath = config.get( md5, "romPath" );
+                String artPath = config.get( md5, "artPath" );
                 items.add( new GalleryItem( this, md5, romPath, artPath ) );
             }
         }
