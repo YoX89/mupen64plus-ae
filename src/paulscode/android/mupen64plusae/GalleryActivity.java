@@ -277,10 +277,13 @@ public class GalleryActivity extends Activity implements OnItemClickListener
         List<GalleryItem> items = new ArrayList<GalleryItem>();
         for( String sectionTitle : config.keySet() )
         {
-            String md5 = config.get( sectionTitle, "md5" );
-            String romPath = config.get( sectionTitle, "romPath" );
-            String artPath = config.get( sectionTitle, "artPath" );
-            items.add( new GalleryItem( this, md5, romPath, artPath ) );
+            if( !ConfigFile.SECTIONLESS_NAME.equals( sectionTitle ) )
+            {
+                String md5 = config.get( sectionTitle, "md5" );
+                String romPath = config.get( sectionTitle, "romPath" );
+                String artPath = config.get( sectionTitle, "artPath" );
+                items.add( new GalleryItem( this, md5, romPath, artPath ) );
+            }
         }
         Collections.sort( items );
         mGridView.setAdapter( new GalleryItem.Adapter( this, R.id.text1, items ) );
